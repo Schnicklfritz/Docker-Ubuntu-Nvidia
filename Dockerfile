@@ -1,4 +1,4 @@
-FROM nvidia/cuda:13.0.0-devel-ubuntu24.04
+FROM nvidia/cuda:13.0.1-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
@@ -50,5 +50,4 @@ EXPOSE 22
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-USER root
 CMD ["/usr/local/bin/entrypoint.sh"]
