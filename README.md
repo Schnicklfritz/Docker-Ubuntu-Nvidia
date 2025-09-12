@@ -1,11 +1,6 @@
 # Ubuntu 24.04 + CUDA 13.0 + XFCE + X2Go Base Docker Image
 
-/ _ )___ / /__ / / / / /_/ // // / ____
-/ _ / _ / / -) _ / // __/ __/ __/ __/ / -) __/
-//_//_////__/_/_/_/_//_/_/
-
-
-This Docker image provides a **base Ubuntu 24.04 desktop environment** with **Nvidia CUDA 13.0 development toolkit, XFCE desktop**, and **X2Go server** for remote GUI access. It is tailored for GPU-accelerated workloads, AI/ML development, multimedia, and general desktop use on cloud or local systems.
+This Docker image provides a **base Ubuntu 24.04 desktop environment** with the **Nvidia CUDA 13.0 development toolkit, XFCE desktop environment**, and an **X2Go server** for remote GUI access. It is tailored for GPU-accelerated workloads, AI/ML development, multimedia, and general desktop use on cloud or local systems.
 
 ---
 
@@ -13,11 +8,11 @@ This Docker image provides a **base Ubuntu 24.04 desktop environment** with **Nv
 
 - Ubuntu 24.04 LTS base
 - Full Nvidia CUDA 13.0 development environment (`devel` image)
-- XFCE desktop environment with goodies
-- X2Go server configured for remote desktop sessions (XFCE auto-start)
-- PulseAudio setup for audio forwarding
-- Commonly used utilities, Python 3 and scientific/ML libraries installed
-- Non-root user `user` with sudo privileges (password: `user`)
+- XFCE desktop environment with common utilities and goodies
+- X2Go server configured for remote desktop sessions with XFCE auto-start
+- PulseAudio configured for audio forwarding
+- Python 3 and scientific/ML libraries installed
+- Non-root user `user` with sudo privileges (default password: `user`)
 - SSH server configured on default port 22
 
 ---
@@ -28,6 +23,7 @@ This Docker image provides a **base Ubuntu 24.04 desktop environment** with **Nv
 
 docker build -t yourusername/ubuntu24-cuda-xfce-x2go:latest .
 
+
 ### Run the container
 
 docker run -d --gpus all -p 2222:22
@@ -36,27 +32,29 @@ docker run -d --gpus all -p 2222:22
 yourusername/ubuntu24-cuda-xfce-x2go:latest
 
 
-- Connect to the container via X2Go client using SSH on port 2222.
+- Connect using X2Go client via SSH on port `2222`.
 - Username: `user`
 - Password: `user`
 
-### Access and Development
+---
 
-- X2Go will start the XFCE desktop automatically upon connection.
-- Audio is forwarded through PulseAudio.
-- You can extend this base image with your specific apps and tools.
+## Access and Development
+
+- X2Go automatically starts the XFCE desktop session upon connection.
+- Audio is forwarded via PulseAudio to support multimedia applications.
+- The base image can be extended with additional apps and tools as needed.
 
 ---
 
-## GPU and CUDA
+## GPU and CUDA Support
 
-This image exposes all GPUs and driver capabilities to the container. Use the `--gpus all` option in `docker run` to pass GPU access.
+This image exposes all GPUs and driver capabilities to the container. Use the `--gpus all` option with `docker run` to enable GPU access.
 
 ---
 
 ## Contributing
 
-Feel free to fork and create derived images for your specific needs like voice cloning, Reaper, ComfyUI, or dataset processing.
+You are welcome to fork this repository and create derived images tailored to your specific use cases such as voice cloning, Reaper, ComfyUI, dataset processing, or other GPU-accelerated applications.
 
 ---
 
@@ -68,5 +66,4 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For questions and feedback, please contact [your-email@example.com].
-
+For questions or feedback, please contact [Schnicklfritz@users.noreply.github.com].
