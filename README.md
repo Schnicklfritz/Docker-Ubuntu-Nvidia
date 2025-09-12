@@ -1,13 +1,13 @@
-# Ubuntu 24.04 + CUDA 13.0 + XFCE + X2Go Base Docker Image
+# Ubuntu 24.04 + CUDA 13.0.1 + XFCE + X2Go Base Docker Image
 
-This Docker image provides a **base Ubuntu 24.04 desktop environment** with the **Nvidia CUDA 13.0 development toolkit, XFCE desktop environment**, and an **X2Go server** for remote GUI access. It is tailored for GPU-accelerated workloads, AI/ML development, multimedia, and general desktop use on cloud or local systems.
+This Docker image provides a **base Ubuntu 24.04 desktop environment** with the **Nvidia CUDA 13.0.1 runtime environment, XFCE desktop environment**, and an **X2Go server** for remote GUI access. It is tailored for GPU-accelerated workloads, AI/ML development, multimedia, and general desktop use on cloud or local systems.
 
 ---
 
 ## Features
 
 - Ubuntu 24.04 LTS base
-- Full Nvidia CUDA 13.0 development environment (`devel` image)
+- Full Nvidia CUDA 13.0.1 runtime environment (x86_64) 
 - XFCE desktop environment with common utilities and goodies
 - X2Go server configured for remote desktop sessions with XFCE auto-start
 - PulseAudio configured for audio forwarding
