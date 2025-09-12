@@ -6,8 +6,14 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,video,display
 ENV CUDA_VERSION=13.0
 
-# Enable universe and multiverse repos, update, and install packages with debugging
-RUN apt-get update && apt-get install -y software-properties-common && \
+# Fix NVIDIA CUDA apt repo keys and URLs for Ubuntu 24.04
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub && \
+    sed -i 's/ubuntu1604/ubuntu2404/g' /etc/apt/sources.list.d/cuda*.list || true && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update
+
+# Enable universe and multiverse repos, install essential packages with detailed logging if error
+RUN apt-get install -y software-properties-common && \
     add-apt-repository universe && add-apt-repository multiverse && apt-get update && \
     apt-get update -o Debug::Acquire::http=true && \
     apt-get install -y --no-install-recommends netcat iputils-ping curl wget ssh openssh-server lsb-release python3 python3-pip build-essential cmake git || \
