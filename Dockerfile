@@ -1,3 +1,4 @@
+
 FROM nvidia/cuda:13.0.1-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -5,25 +6,24 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,video,display
 ENV CUDA_VERSION=13.0
 
-# Update and install basic utilities
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    netcat iputils-ping curl wget ssh openssh-server lsb-release \
-    python3 python3-pip build-essential cmake git && \
+# Enable universe and multiverse repos, update, and install packages with debugging
+RUN apt-get update && apt-get install -y software-properties-common && \
+    add-apt-repository universe && add-apt-repository multiverse && apt-get update && \
+    apt-get update -o Debug::Acquire::http=true && \
+    apt-get install -y --no-install-recommends netcat iputils-ping curl wget ssh openssh-server lsb-release python3 python3-pip build-essential cmake git || \
+    (cat /var/log/apt/term.log && cat /var/log/apt/history.log && false) && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install archiving tools and editors
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    zip unzip tar vim nano htop less screen && \
+# Install additional utilities
+RUN apt-get update && apt-get install -y --no-install-recommends zip unzip tar vim nano htop less screen && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install audio and desktop packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    pulseaudio pavucontrol alsa-utils xfce4 xfce4-goodies && \
+RUN apt-get update && apt-get install -y --no-install-recommends pulseaudio pavucontrol alsa-utils xfce4 xfce4-goodies && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install X2Go server and related packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    x2goserver x2goserver-xsession dbus-x11 x11-xserver-utils sudo adduser passwd && \
+RUN apt-get update && apt-get install -y --no-install-recommends x2goserver x2goserver-xsession dbus-x11 x11-xserver-utils sudo adduser passwd && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install Python AI/ML libraries
