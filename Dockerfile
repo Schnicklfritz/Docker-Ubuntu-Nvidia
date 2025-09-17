@@ -32,8 +32,6 @@ RUN echo "startxfce4" > /home/user/.xsession
 WORKDIR /home/user
 USER root
 
-RUN python3 -m pip install --upgrade pip
-
 EXPOSE 22/tcp
 
 CMD ["/usr/sbin/sshd","-D"]
