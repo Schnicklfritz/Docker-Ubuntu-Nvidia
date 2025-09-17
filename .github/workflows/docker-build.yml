@@ -3,16 +3,8 @@ name: build-and-push
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'Dockerfile'
-      - '.github/workflows/build.yml'
-      - '**/*.sh'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'Dockerfile'
-      - '.github/workflows/build.yml'
-      - '**/*.sh'
   workflow_dispatch:
 
 permissions:
