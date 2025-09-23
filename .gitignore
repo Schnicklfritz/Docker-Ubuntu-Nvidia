@@ -1,1 +1,19 @@
-Docker-Ubuntu-Nvidia/
+# Secrets (NEVER commit these)
+secrets/.env
+secrets/ssh_keys/
+*.key
+*.pem
+.env
+
+# Docker build artifacts
+*.tar
+build/
+dist/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+docker-compose.override.yml

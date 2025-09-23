@@ -1,15 +1,12 @@
 #!/bin/bash
+# GPU and CUDA environment setup
+export NVIDIA_VISIBLE_DEVICES=all
+export NVIDIA_DRIVER_CAPABILITIES=compute,utility,display
+export DISPLAY=${DISPLAY:-:0}
 
-echo "Configuring container environment..."
+# Python environment
+export PYTHONPATH=/workspace:$PYTHONPATH
+export PATH=/home/user/.local/bin:$PATH
 
-CPU_CORES=$(nproc)
-echo "Detected CPU cores: $CPU_CORES"
-
-export CONTAINER_CPU_CORES=$CPU_CORES
-
-if [ -z "$DISPLAY" ]; then
-  export DISPLAY=:0
-  echo "DISPLAY not set; defaulted to :0"
-fi
-
-echo "Environment configuration done."
+echo "=== Environment Configured ==="
+nvidia-smi 2>/dev/null || echo "GPU not available"
