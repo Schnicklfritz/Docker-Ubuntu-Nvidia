@@ -18,23 +18,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN locale-gen en_US.UTF-8
 
+# Create user and setup sudo
 RUN useradd -m -s /bin/bash user \
  && usermod -aG sudo,audio,video user \
  && echo "user:user" | chpasswd \
  && echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/user
 
-RUN mkdir -p /var/run/sshd
+# Copy scripts and set permissions before switching to user
+COPY scripts /home/user/scripts
+RUN chmod +x /home/user/scripts/*.sh || true
 
 USER user
 WORKDIR /home/user
 
-# Copy scripts and set executable permissions with fallback
-COPY scripts /home/user/scripts
-RUN chmod +x /home/user/scripts/*.sh || true
-RUN chown -R user:user /home/user/scripts
-
+# XFCE autostart
 RUN echo "startxfce4" > /home/user/.xsession
 
+# Python common packages
 RUN python3 -m pip install --upgrade pip setuptools wheel \
  && python3 -m pip install \
     numpy scipy torch torchvision torchaudio transformers diffusers pillow \
