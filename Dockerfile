@@ -1,42 +1,39 @@
-
 FROM nvidia/cuda:13.0.1-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,display
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
-# Install SSH, basics (nano/python for manual steps), and unminimize tool (but don't run it yet)
+# Minimal installs: SSH, Python basics + headless Chromium for LLM/web tasks
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates locales tzdata \
     openssh-server \
-    ubuntu-minimal \
-    nano \
-    python3 python3-pip \
-    locales \
-    && locale-gen en_US.UTF-8 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    python3 python3-pip python3-venv \
+    chromium-browser \
+    && rm -rf /var/lib/apt/lists/*
 
-# SSH setup (for access/tunneling)
-RUN mkdir /var/run/sshd && ssh-keygen -A && \
-    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
-    echo 'X11Forwarding yes' >> /etc/ssh/sshd_config && \
-    echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config && \
-    echo 'GatewayPorts yes' >> /etc/ssh/sshd_config
+RUN locale-gen en_US.UTF-8
 
-# User "fritz" with full perms
-RUN useradd -m -s /bin/bash fritz && \
-    usermod -aG sudo,audio,video fritz && \
-    echo 'fritz:fritz' | chpasswd && \
-    echo 'fritz ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/fritz && \
-    chmod 0440 /etc/sudoers.d/fritz
+# User "admin" (non-root, sudo-enabled)
+RUN useradd -m -s /bin/bash admin \
+ && usermod -aG sudo admin \
+ && echo "admin:admin" | chpasswd \
+ && echo "admin ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/admin \
+ && mkdir -p /var/run/sshd
 
-# Copy entrypoint from scripts/ dir
-COPY scripts/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Venv setup (pip ready for selenium/torch adds)
+USER admin
+RUN python3 -m venv /home/admin/venv \
+ && /home/admin/venv/bin/pip install --upgrade pip
+ENV PATH="/home/admin/venv/bin:$PATH"
 
-WORKDIR /home/fritz
-EXPOSE 22
+WORKDIR /home/admin
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/usr/sbin/sshd", "-D"]
+EXPOSE 22/tcp
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+CMD ["/usr/local/bin/entrypoint.sh"]
