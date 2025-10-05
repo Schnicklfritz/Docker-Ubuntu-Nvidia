@@ -27,7 +27,8 @@ RUN useradd -m -s /bin/bash fritz && \
     echo 'fritz:fritz' | chpasswd && \
     echo 'fritz ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/fritz
 
-COPY entrypoint.sh /entrypoint.sh
+# Copy entrypoint from scripts/ dir
+COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /home/fritz
