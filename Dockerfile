@@ -20,6 +20,7 @@ RUN locale-gen en_US.UTF-8
 RUN useradd -m -s /bin/bash admin \
  && usermod -aG sudo admin \
  && echo "admin:admin" | chpasswd \
+ && mkdir -p /etc/sudoers.d \
  && echo "admin ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/admin \
  && mkdir -p /var/run/sshd
 
