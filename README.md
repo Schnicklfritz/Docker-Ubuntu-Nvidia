@@ -1,69 +1,38 @@
-## Ubuntu 24.04 + CUDA 13.0.1 + XFCE + X2Go Base Docker Image
+# AI Translation Base (Minimal GPU Setup)
 
-This Docker image provides a **base Ubuntu 24.04 desktop environment** with the **Nvidia CUDA 13.0.1 runtime environment, XFCE desktop environment**, and an **X2Go server** for remote GUI access. It is tailored for GPU-accelerated workloads, AI/ML development, multimedia, and general desktop use on cloud or local systems.
-
----
+Minimal Ubuntu 24.04 + CUDA 13.0.1 base, unminimized for tools, with SSH for access. Tailored for GPU-accelerated translation (en/hi/ne/ta) prototyping via sshuttle tunneling.
 
 ## Features
-
-- Ubuntu 24.04 LTS base
-- Full Nvidia CUDA 13.0.1 runtime environment (x86_64) 
-- XFCE desktop environment with common utilities and goodies
-- X2Go server configured for remote desktop sessions with XFCE auto-start
-- PulseAudio configured for audio forwarding
-- Python 3 and scientific/ML libraries installed
-- Non-root user `user` with sudo privileges (default password: `user`)
-- SSH server configured on default port 22
-
----
+- Ubuntu 24.04 LTS, unminimized
+- NVIDIA CUDA 13.0.1 runtime (x86_64)
+- SSH on 22 (user: fritz, pw: fritz; sudo/GPU/audio perms)
+- Optional PulseAudio for voice
+- Python 3 ready for torch/transformers
+- No GUI—use sshuttle for secure tunneling
 
 ## Usage
+### Build/Push (via GitHub Actions)
+- Commit/push to main: Auto-builds/pushes to Docker Hub (YOUR_USERNAME/ai-translation-base:latest).
+- Manual: Repo > Actions > Build and Push > Run workflow.
 
-### Build the image locally
+### Run on QuickPod
+- Template: Image YOUR_USERNAME/ai-translation-base:latest, expose 22, env SSH_PASSWORD=fritz or PUBLIC_KEY=your-pubkey.
+- Pod: --gpus all equivalent (QuickPod handles), volumes /workspace for code.
+- Tunnel: `sshuttle -r fritz@POD_IP 0/0` (or specific ports like 5000 for API).
 
-docker build -t yourusername/ubuntu24-cuda-xfce-x2go:latest .
+### Access
+- SSH: `ssh fritz@host -p 22` (install deps: `pip install torch --index-url https://download.pytorch.org/whl/cu121`).
+- Test GPU: `python3 -c "import torch; print(torch.cuda.is_available())"`.
+- Extend: Add Flask/Redis for cached translation API.
 
-
-### Run the container
-
-docker run -d --gpus all -p 2222:22
--v /host/home/user:/home/user
--v /host/datasets:/mnt/data
-yourusername/ubuntu24-cuda-xfce-x2go:latest
-
-
-- Connect using X2Go client via SSH on port `2222`.
-- Username: `user`
-- Password: `user`
-
----
-
-## Access and Development
-
-- X2Go automatically starts the XFCE desktop session upon connection.
-- Audio is forwarded via PulseAudio to support multimedia applications.
-- The base image can be extended with additional apps and tools as needed.
-
----
-
-## GPU and CUDA Support
-
-This image exposes all GPUs and driver capabilities to the container. Use the `--gpus all` option with `docker run` to enable GPU access.
-
----
+## GPU Support
+QuickPod pods expose all GPUs; test with nvidia-smi over SSH.
 
 ## Contributing
-
-You are welcome to fork this repository and create derived images tailored to your specific use cases such as voice cloning, Reaper, ComfyUI, dataset processing, or other GPU-accelerated applications.
-
----
+Fork for variants (e.g., add XFCE/X2Go from old template for GUI).
 
 ## License
-
-This project is licensed under the MIT License.
-
----
+MIT License.
 
 ## Contact
-
-For questions or feedback, please contact [Schnicklfritz@users.noreply.github.com].
+Schnicklfritz@users.noreply.github.com
