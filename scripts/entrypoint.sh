@@ -5,10 +5,10 @@ export NVIDIA_VISIBLE_DEVICES=all
 export NVIDIA_DRIVER_CAPABILITIES=compute,utility,display
 export DISPLAY=${DISPLAY:-:0}
 export PYTHONPATH=/workspace:$PYTHONPATH
-export PATH=/home/fritz/.local/bin:$PATH
+export PATH=/home/admin/.local/bin:$PATH
 
-SSH_USER=${SSH_USER:-fritz}
-SSH_PASSWORD=${SSH_PASSWORD:-fritz}
+SSH_USER=${SSH_USER:-admin}
+SSH_PASSWORD=${SSH_PASSWORD:-admin}
 
 if [ -n "$SSH_PASSWORD" ]; then
     echo "$SSH_USER:$SSH_PASSWORD" | chpasswd
@@ -24,8 +24,9 @@ if [ -n "$PUBLIC_KEY" ]; then
 fi
 
 # Optional PulseAudio (for voice translation forwarding)
-su - fritz -c "pulseaudio --start --exit-idle-time=-1" || echo "PulseAudio skipped"
+su - admin -c "pulseaudio --start --exit-idle-time=-1" || echo "PulseAudio skipped"
 
 echo "=== Ready: SSH on 22, GPU $(nvidia-smi 2>/dev/null | head -n1 || echo 'available with --gpus all') ==="
 
+ssh-keygen -A
 exec /usr/sbin/sshd -D
