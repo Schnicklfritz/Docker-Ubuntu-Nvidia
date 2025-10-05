@@ -10,9 +10,6 @@ export PATH=/home/admin/.local/bin:$PATH
 SSH_USER=${SSH_USER:-admin}
 SSH_PASSWORD=${SSH_PASSWORD:-admin}
 
-if [ -n "$SSH_PASSWORD" ]; then
-    echo "$SSH_USER:$SSH_PASSWORD" | chpasswd
-fi
 
 if [ -n "$PUBLIC_KEY" ]; then
     HOME_DIR=$(getent passwd "$SSH_USER" | cut -d: -f6)

@@ -36,6 +36,4 @@ COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 USER admin
 WORKDIR /home/admin
-
-
 CMD ["/usr/local/bin/entrypoint.sh"]
