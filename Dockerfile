@@ -25,16 +25,17 @@ RUN useradd -m -s /bin/bash admin \
  && mkdir -p /var/run/sshd
 
 # Venv setup (pip ready for selenium/torch adds)
-USER admin
 RUN python3 -m venv /home/admin/venv \
  && /home/admin/venv/bin/pip install --upgrade pip
 ENV PATH="/home/admin/venv/bin:$PATH"
 
-WORKDIR /home/admin
 
 EXPOSE 22/tcp
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+USER admin
+WORKDIR /home/admin
+
 
 CMD ["/usr/local/bin/entrypoint.sh"]
