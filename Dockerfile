@@ -33,7 +33,7 @@ RUN useradd -m -s /bin/bash admin \
 
 # Venv setup (pip ready for selenium/torch adds)
 RUN python3 -m venv /home/admin/venv \
- && /home/admin/venv/bin/pip install --upgrade pip
+ && /home/admin/venv/bin/pip install --upgrade pip \
  && chown -R admin:admin /home/admin/venv
 
 ENV PATH="/home/admin/venv/bin:$PATH"
