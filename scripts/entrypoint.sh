@@ -2,6 +2,11 @@
 # Minimal entrypoint: GPU/audio setup + SSH
 set -e   # exit on error
 
+# Ensure running as root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "ERROR: Entrypoint must run as root to start sshd"
+    exit 1
+fi
 
 export NVIDIA_VISIBLE_DEVICES=all
 export NVIDIA_DRIVER_CAPABILITIES=compute,utility,display
@@ -17,7 +22,7 @@ if [ "$SSH_PASSWORD" != "admin" ]; then
     echo "$SSH_USER:$SSH_PASSWORD" | chpasswd
 fi
 
-
+# Public key authentication setup
 if [ -n "$PUBLIC_KEY" ]; then
     HOME_DIR=$(getent passwd "$SSH_USER" | cut -d: -f6)
     mkdir -p "$HOME_DIR/.ssh"
@@ -41,6 +46,8 @@ echo "GPU: $GPU_INFO"
 echo "Python: $(python3 --version) in venv at /home/admin/venv"
 echo "=========================================="
 
-
+# Generate SSH host keys if missing
 ssh-keygen -A
+
+# Start SSH daemon (blocks, keeps container running)
 exec /usr/sbin/sshd -D -e

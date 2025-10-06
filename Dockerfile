@@ -6,19 +6,23 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
-# Minimal installs: SSH, Python basics + headless Chromium for LLM/web tasks
+# Minimal installs: SSH, Python basics + Chrome for Selenium/LLM web tasks
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates locales tzdata \
+    ca-certificates \
+    locales \
+    tzdata \
     openssh-server \
-    python3 python3-pip python3-venv \
-    chromium \
+    python3 \
+    python3-pip \
+    python3-venv \
     pulseaudio \
+    netcat-openbsd \
+    sudo \
     wget \
     gnupg \
-    netcat-openbsd \
-   && wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
     && apt-get install -y ./google-chrome-stable_current_amd64.deb \
-    && rm google-chrome-stable_current_amd64.deb \ 
+    && rm google-chrome-stable_current_amd64.deb \
     && rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
@@ -29,15 +33,15 @@ RUN useradd -m -s /bin/bash admin \
  && echo "admin:admin" | chpasswd \
  && mkdir -p /etc/sudoers.d \
  && echo "admin ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/admin \
+ && chmod 0440 /etc/sudoers.d/admin \
  && mkdir -p /var/run/sshd
 
 # Venv setup (pip ready for selenium/torch adds)
 RUN python3 -m venv /home/admin/venv \
  && /home/admin/venv/bin/pip install --upgrade pip \
- && chown -R admin:admin /home/admin/venv
+ && chown -R admin:admin /home/admin
 
 ENV PATH="/home/admin/venv/bin:$PATH"
-
 
 EXPOSE 22
 
