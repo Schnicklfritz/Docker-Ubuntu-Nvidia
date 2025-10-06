@@ -1,4 +1,4 @@
-name: Build and Publish Docker Image
+name: Build and Publish CUDA Headless Image
 
 on:
   push:
@@ -14,22 +14,20 @@ jobs:
       contents: read
       packages: write
     env:
-      R: ghcr.io
-      I: cuda-minimal
-      O: ${{ github.repository_owner }}
+      GHCR_REGISTRY: ghcr.io
+      IMAGE_NAME: cuda-headless  # Changed from cuda-minimal
+      OWNER: ${{ github.repository_owner }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    
     steps:
-      - name: Set B
-        run: echo "B=${R}/${O}/${I}" >> $GITHUB_ENV
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.R }}
+          registry: ${{ env.GHCR_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -42,30 +40,59 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push to GHCR and Docker Hub
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}
+            ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix={{branch}}-
+            type=raw,value=13.0.1-ubuntu24.04
+
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ghcr.io/${{ env.O }}/${{ env.I }}:latest
-            ghcr.io/${{ env.O }}/${{ env.I }}:${{ github.sha }}
-            ${{ env.DOCKERHUB_USERNAME }}/${{ env.I }}:latest
-            ${{ env.DOCKERHUB_USERNAME }}/${{ env.I }}:${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
 
-      - name: Test Image
+      - name: Test image (basic checks)
         if: ${{ github.event_name != 'pull_request' }}
-        env:
-          IMG: ghcr.io/${{ env.O }}/${{ env.I }}:latest
         run: |
-          set -euo pipefail
-          docker run --rm "$IMG" \
-            ls /usr/local/bin/entrypoint.sh \
-            || echo "Test passed"
+          set -e  # Exit on any error
+          
+          IMG="ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest"
+          
+          echo "Testing entrypoint script exists..."
+          docker run --rm "$IMG" ls /usr/local/bin/entrypoint.sh
+          
+          echo "Testing Python version..."
           docker run --rm "$IMG" python3 --version
-          docker run --rm "$IMG" chromium-browser \
-            --headless --no-sandbox --version \
-            || echo "Chromium OK"
+          
+          echo "Testing Chrome installation..."
+          docker run --rm "$IMG" google-chrome --version
+          
+          echo "Testing venv exists..."
+          docker run --rm "$IMG" ls /home/admin/venv/bin/python3
+          
+          echo "Testing SSH server binary..."
+          docker run --rm "$IMG" which sshd
+          
+          echo "✅ All basic tests passed!"
+
+      - name: Output image details
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          echo "Images published:"
+          echo "  GHCR: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest"
+          echo "  Docker Hub: ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
+          echo ""
+          echo "Pull command:"
+          echo "  docker pull ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"

@@ -11,7 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates locales tzdata \
     openssh-server \
     python3 python3-pip python3-venv \
-    chromium-browser \
+    chromium \
+    pulseaudio \
+    wget \
+    gnupg \
+    netcat-bsd \
+   && wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && apt-get install -y ./google-chrome-stable_current_amd64.deb \
+    && rm google-chrome-stable_current_amd64.deb \ 
     && rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
@@ -27,13 +34,15 @@ RUN useradd -m -s /bin/bash admin \
 # Venv setup (pip ready for selenium/torch adds)
 RUN python3 -m venv /home/admin/venv \
  && /home/admin/venv/bin/pip install --upgrade pip
+ && chown -R admin:admin /home/admin/venv
+
 ENV PATH="/home/admin/venv/bin:$PATH"
 
 
-EXPOSE 22/tcp
+EXPOSE 22
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-USER admin
+
 WORKDIR /home/admin
 CMD ["/usr/local/bin/entrypoint.sh"]
