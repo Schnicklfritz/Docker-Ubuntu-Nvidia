@@ -43,6 +43,10 @@ RUN python3 -m venv /home/admin/venv \
 
 ENV PATH="/home/admin/venv/bin:$PATH"
 
+# Enable password authentication for SSH
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+
 EXPOSE 22
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
