@@ -49,4 +49,7 @@ COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /home/admin
+
+# Override base image entrypoint and use ours
+ENTRYPOINT []
 CMD ["/usr/local/bin/entrypoint.sh"]
